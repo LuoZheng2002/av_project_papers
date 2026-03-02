@@ -5,6 +5,9 @@ This paper develops a macroscopic network-flow model for joint spatiotemporal pr
 ## State
 The environment is a discretized city represented as a graph of K zones with exogenous OD demand and fixed shortest-path trip times τij. System state tracks passenger and vehicle aggregate quantities: waiting passengers Qw, matched passengers Qm, in-vehicle passengers Qb (split into intra/inter-zone), idle vehicles Nv, relocating vehicles Nr, and parked (off-duty) vehicles Np. Continuous-time network-flow dynamics are specified (arrival, confirmation/matching, cancellation, pickup, trip completion, rebalancing) and discretized for computation; some relaxations aggregate inter-zone trips and treat Nv as a decision variable to decouple zones.
 
+### Agent Role
+The paper models a central platform/operator (fleet-level agent). Control variables, objective, and constraints are all defined at the platform level (origin-dependent price rates, rebalancing flows, and fleet size adjustments) and the objective maximizes platform profit; while a microscopic simulator is used for validation, individual drivers are not modeled as autonomous decision-makers. Therefore the agent is a company/fleet operator, not individual drivers.
+
 ## Action
 The platform (central agent) controls: origin-dependent price rates pi(t), rebalancing flows rij(t) and fleet size adjustments si(t) in the original model. In the relaxed/decomposed formulation actions are effectively pi(t) and targeted number of idle/on-duty vehicles Nv_i(t). No machine-learning model is used; dynamic programming (value-function computation over a discretized smaller state space) and model predictive control are the computational tools.
 

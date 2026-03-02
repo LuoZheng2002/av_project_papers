@@ -29,6 +29,20 @@ Notes: common assumptions include discretized spatial partitions (zones/hex/node
 
 ---
 
+### Agent Role (per-paper concise mapping)
+
+- Competitive pricing for ride-sourcing platforms with MARL: Both — platform (company/operator) + drivers (modeled via aggregate participation/repositioning probabilities).
+- Hybrid operations (D2ABMS): Individual drivers & vehicles — per-driver/vehicle agents; platform matching is centralized but not an economic agent.
+- Learning-based control of AMoD in competitive environments: Company/operator — each operator centrally controls a fleet; drivers not modeled as independent agents.
+- Graph Meta-Reinforcement Learning for Transferable AMoD: Company/operator — operator-level AMoD control and rewards.
+- Two-Sided DRL for MoD with Mixed Autonomy: Both — supervisor/platform agent (company) and many decentralized driver agents.
+- SAMoD: Individual vehicles — fully decentralized per-vehicle agents.
+- Modeling the competition between multiple AMoD operators: Company/fleet operators & travelers — operators (company) and individual traveler agents; individual drivers not modeled.
+- Competition and Cooperation (broker): Company/operator — operators and a broker controller; vehicles and travelers are modeled but individual human driver autonomy not emphasized.
+- Spatiotemporal Pricing (decomposition): Company/platform — platform-level controls (prices, rebalancing flows) and aggregate vehicle counts.
+- Geometric matching and spatial pricing: Both — drivers (individual-choice regimes aggregated or short-run fixed N) and platform (zonal pricing and commission).
+- Spatial pricing under congestion charge: Company/platform + passengers/drivers in equilibrium — platform chooses prices/payments; drivers are modeled via participation functions in long-run formulations.
+
 ## Action (grouped by action type & control granularity)
 
 - Pricing & economic controls (continuous prices / commission rates):

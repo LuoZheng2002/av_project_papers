@@ -5,6 +5,10 @@ This paper formulates multi-operator Autonomous Mobility-on-Demand (AMoD) contro
 ## State
 The environment is an urban-area partitioned into nodes (areas); each node's state captures local supply/demand statistics (vehicle counts, demand arrivals, trip lengths, etc.) and spatial relations are represented via a graph. Demand is simulated as Poisson arrivals with rates based on real-world data (Gammelli et al., 2022). Each operator (agent) centrally controls its fleet and does not observe competitors' internal states or actions.
 
+### Agent Role
+
+The paper models each agent as a company/operator (fleet). Agents centrally control an entire fleet and optimize operator-level objectives (profit from pricing and rebalancing), rather than representing individual drivers. This is evidenced by fleet-level actions (rebalancing flows and dynamic pricing) and rewards defined as operator profit.
+
 ## Action
 Agents output (a) a higher-level desired share of vehicles per area (modeled as a Dirichlet-parameterized action) which is converted by a minimum-cost rebalancing flow solver into concrete vehicle flows, and (b) a dynamic pricing control signal produced by the GNN actor (modeled as a Gaussian random variable used as a regression coefficient on travel time to determine trip prices). Both actor and critic are implemented with graph neural networks operating on area-level inputs.
 

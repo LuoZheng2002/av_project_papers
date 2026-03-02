@@ -5,6 +5,9 @@ This paper develops an agent-based model (ABM) to study coexistence and competit
 ## State
 The environment represents an urban AMoD morning-peak (5:30–10:00) in The Hague with 49 service centroids and ~25,800 travel requests. There are three competing AMoD operators, each managing a fleet of single-seat SAVs. The traffic environment is modeled mesoscopically (link/node movement rules, speed–density relationships). Agent types: individual travelers (requests), vehicles (operator fleets), fleet management centers (per operator), and a centralized traffic management center that provides routing and network state.
 
+### Agent Role
+The paper models agents primarily at the company/fleet level and as individual travelers, but not as individual human drivers. Operator agents are represented by fleet management centers (company-level actors) that set pricing, run assignment algorithms and dispatch vehicles. Vehicles are modeled as single-seat SAV assets under operator control rather than autonomous "driver" agents with independent decision-making. Traveler agents represent individual users submitting OD requests and choosing among operators via the MNL. In short: the model represents companies (fleet/operators) and individual travelers, but does not model individual drivers.
+
 ## Action
 Traveler agents: submit time-stamped OD requests and choose among the three operators according to a multinomial logit (MNL) utility. Operator agents: assign vehicles to requests (two tested methods: heuristic nearest-vehicle and an optimal bundle assignment solved via the Hungarian algorithm), set pricing (baseline, discount, or a supply–demand balancing rule), and dispatch vehicles along computed routes. Traffic manager: computes time-dependent shortest routes (Dijkstra) and updates link travel speeds.
 

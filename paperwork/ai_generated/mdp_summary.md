@@ -5,6 +5,9 @@ This paper proposes a multi-agent reinforcement learning (MADDPG) approach integ
 ## State
 The environment is a mesoscopic simulation over a real road network (Hangzhou) partitioned into 56 hexagonal regions. The joint state st = [sht, sat], where each platform state sht/sat comprises region-wise vectors: waiting passengers (dw), parked vehicles (vp), occupied vehicle destinations (vo), and sampled real-world demand distribution (dt). The setting is a partially observable MDP: each platform can observe its own state and the competitors’ observable actions (prices/wages) but not the competitor’s internal state.
 
+### Agent Role
+The paper models both a platform/company (the HV and SAV platforms) and drivers. The platforms are profit-maximizing companies that choose prices and wages; drivers are represented via participation functions and repositioning probabilities—captured at the individual-choice level but implemented as aggregate/steady-state flows rather than explicit per-driver controlled agents.
+
 ## Action
 The joint action at = [aht, aat]. HV action aht = [wht, pht]: wht is the payout (driver wage) ratio and pht is a continuous price vector (price per km per region). SAV action aat = pat: a continuous region-wise price vector. ML model: MADDPG (multi-agent deep deterministic policy gradient) with actor-critic agents. Actors take the agent’s private state (and observe other platforms’ actions in execution) and output continuous price/wage vectors; critics are centralized during training and take full states and actions as inputs to evaluate Q-values.
 
@@ -21,6 +24,9 @@ This paper proposes D2ABMS, a data-driven agent-based modeling and simulation sy
 
 ## State
 The environment is a real-world large-scale urban road network (Hangzhou, ~193 km2) with empirical demand (~130k trips/day) and OSM-derived network data. Agents: passengers (generate ride requests with origin, destination and wait tolerance), human drivers (HVs: online/offline state, working shifts, cruising/parking) and automated vehicles (AVs: park/cruise/pickup/deliver). Modeling assumptions include: maximum passenger waiting tolerance 30 min, boarding time 40 s, static shortest-path routing via OSRM, one passenger per vehicle, EPA-based emission factors, and baseline fleet sizes (e.g., 7000 HVs, 1540 AVs). Human driver heterogeneity is modeled by k-means clustering into 60 classes, with per-class embeddings learned by the neural network.
+
+### Agent Role
+Individual drivers and vehicles are modeled as per-agent entities: human drivers and AVs have per-agent states and decisions (e.g., offline decision, rest time, accept/decline). The platform acts as a centralized matching engine but is not modeled as an economic decision-making agent in the same way as platform-optimization papers.
 
 ## Action
 Passengers: submit ride requests and wait (or cancel after tolerance). Vehicles (AVs/HVs): accept dispatches, drive to pickup, deliver passengers, cruise or park when idle, and reposition through cruise behavior. Human drivers additionally decide whether to go offline and the rest duration after going offline. ML model: a multi-objective deep neural network jointly predicts (1) IsOffline (binary classification) and (2) RestTime (regression). Inputs include per-order and driver features (e.g., current driving time, order price, last online hour, weekday, today's first online time, current working time, today/order counts and incomes) plus a learned embedding for the driver's class (60 classes). The network is trained end-to-end; the loss combines cross-entropy for the offline decision and mean squared error (MSE) for rest-time, weighted by a hyperparameter w. Matching/assignment uses the Kuhn–Munkres (Hungarian) algorithm with a utility that prioritizes longer-waiting passengers and nearer vehicles. Routing uses OSRM (fastest path).
@@ -39,6 +45,9 @@ This paper formulates multi-operator Autonomous Mobility-on-Demand (AMoD) contro
 ## State
 The environment is an urban-area partitioned into nodes (areas); each node's state captures local supply/demand statistics (vehicle counts, demand arrivals, trip lengths, etc.) and spatial relations are represented via a graph. Demand is simulated as Poisson arrivals with rates based on real-world data (Gammelli et al., 2022). Each operator (agent) centrally controls its fleet and does not observe competitors' internal states or actions.
 
+### Agent Role
+Agents correspond to company-level operators: each operator centrally controls its fleet (operator-level decision-makers). Individual drivers are not modeled as independent agents; control and rewards are defined at the operator/fleet level.
+
 ## Action
 Agents output (a) a higher-level desired share of vehicles per area (modeled as a Dirichlet-parameterized action) which is converted by a minimum-cost rebalancing flow solver into concrete vehicle flows, and (b) a dynamic pricing control signal produced by the GNN actor (modeled as a Gaussian random variable used as a regression coefficient on travel time to determine trip prices). Both actor and critic are implemented with graph neural networks operating on area-level inputs.
 
@@ -55,6 +64,9 @@ This paper formulates multi-city AMoD control as a meta-reinforcement learning p
 
 ## State
 Each city is treated as a distinct MDP/task. The per-timestep state encodes the transportation graph (adjacency A) and node-level features X: current idle vehicles m_t,i, projected future idle availability {m_{t'}}, observed OD demand rates d_{t,ij}, prices p_{t,ij}, costs c_{t,ij}, plus previous action, reward, and done flag for recurrence. Assumptions: travel times and costs are exogenous and known; passenger arrivals follow inhomogeneous Poisson processes estimated from data; passengers leaving unmatched exit the system; AMoD fleet has negligible effect on network congestion (no endogenous congestion modeled). Tasks are sampled from a distribution p(T) over cities.
+
+### Agent Role
+The agent corresponds to the AMoD fleet operator (company-level). The model formulates operator-level actions and rewards (desired idle-vehicle distributions, operator profit) rather than per-driver decision-makers.
 
 ## Action
 The agent outputs a desired idle-vehicle distribution a_t^{reb} over stations (a probability vector summing to 1 giving the percentage of idle vehicles to allocate to each node). The policy is parameterized by a recurrent graph neural network backbone (node encoder + GRU hidden states + graph pooling) within an Advantage Actor-Critic (A2C) meta-RL framework (RL2). The actor decoder maps graph node embeddings to Dirichlet concentration parameters alpha and samples a_t ~ Dirichlet(alpha). Inputs to the model are the graph structure and node features (X) together with recurrent hidden state that aggregates episode-level history.
@@ -73,6 +85,9 @@ This paper develops a two-sided multiagent deep reinforcement learning (DRL) fra
 ## State
 The environment is a discretized urban service region (hexagonal grid) with time split into discrete intervals. Global state S for the supervisor includes AV distribution Va_t, CV distribution Vc_t (split by driver rationality types), aggregated OD trip requests D_t, and current time (one-hot). Drivers have partial observations o_m (grid index, time, and driver-type indicator). The problem is modeled as a two-sided multiagent MDP: a single supervisor agent (centralized) and many noncooperative driver agents (decentralized). Demand arrivals are stochastic and sampled from real NYC taxi data in the simulator.
 
+### Agent Role
+Both: a supervisor/platform agent (company-level) and many decentralized driver agents. The supervisor centrally controls AV relocations and commission parameters; drivers are modeled as decentralized agents learning relocation policies.
+
 ## Action
 Supervisor agent actions: per-grid AV relocation decisions X_t (number of idle AVs to move to neighbor grids or stay) and spatial–temporal commission-fee parameters c_it (commission-rate coefficients) — implemented via a two-head policy network that outputs relocation probabilities and commission-rate distributions. Driver agent actions: discrete relocation choices (stay or move to a neighboring grid). ML used: multiagent A2C (policy and value networks); inputs to the supervisor policy network are the global state vector (Va, Vc, D, time), and inputs to driver policy are the local observation o_m. Drivers and supervisor share/train deep neural network actors and critics (drivers use mean-field approximation and share networks across homogeneous drivers).
 
@@ -90,6 +105,9 @@ This paper proposes SAMoD, a fully decentralized multi-agent system where each v
 ## State
 The environment is a free‑floating, one‑way shared mobility area discretized into zones; the authors use NYC taxi trip records for demand and a simplified grid-like travel-time model (no congestion, constant speed ~21 mph). Agents observe only local information: their vehicle state (empty / hasPassengers / full), presence of active requests in their current zone (yes/no) and in neighbouring zones (yes/no). Historical per-zone request counts are gathered online by agents for use in rebalancing decisions. The simulation assumes a fixed fleet (200 vehicles), vehicle capacity 4, and event-driven updates (zone border cross, drop-off, or rebalancing arrival).
 
+### Agent Role
+Individual vehicles are the agents: each vehicle (autonomous) learns per-vehicle relocation and pickup policies. There is no separate company/fleet operator modeled as a decision-making agent.
+
 ## Action
 Each agent executes discrete actions A = {pickUp, rebalance, doNothing}. pickUp triggers nearest-request pickup (initial or ride‑sharing) and allows listening for further ride‑share requests while not full. rebalance selects a neighbouring zone according to one of learned strategies: (i) neighbour with most current pending requests, (ii) neighbour with largest supply-request gap, (iii) neighbour with historically most requests, or (iv) neighbour with historically largest gap. The learning method is tabular Q‑learning: Q(S,A) is updated per episode; state inputs are the discrete vehicle state and binary indicators of requests in current and neighbouring zones. Episodes are bounded by drop‑offs or end of rebalancing.
 
@@ -106,6 +124,9 @@ This paper develops an agent-based model (ABM) to study coexistence and competit
 
 ## State
 The environment represents an urban AMoD morning-peak (5:30–10:00) in The Hague with 49 service centroids and ~25,800 travel requests. There are three competing AMoD operators, each managing a fleet of single-seat SAVs. The traffic environment is modeled mesoscopically (link/node movement rules, speed–density relationships). Agent types: individual travelers (requests), vehicles (operator fleets), fleet management centers (per operator), and a centralized traffic management center that provides routing and network state.
+
+### Agent Role
+Company/fleet operators and travelers: operators are modeled as company-level fleet managers making assignment and pricing decisions; travelers are individual demand-generating agents. Individual human drivers are not represented as independent decision-making agents.
 
 ## Action
 Traveler agents: submit time-stamped OD requests and choose among the three operators according to a multinomial logit (MNL) utility. Operator agents: assign vehicles to requests (two tested methods: heuristic nearest-vehicle and an optimal bundle assignment solved via the Hungarian algorithm), set pricing (baseline, discount, or a supply–demand balancing rule), and dispatch vehicles along computed routes. Traffic manager: computes time-dependent shortest routes (Dijkstra) and updates link travel speeds.
@@ -131,6 +152,9 @@ This paper develops an agent-based simulation and turn-based game to evaluate ho
 ## State
 Environment: discrete-time agent-based simulation on a street network G = (N, E) (OSMnx-extracted Manhattan); time step = 60 s; rebalancing and travel-time scaling every 15 min; demand based on subsampled NYC taxi trips (10% market penetration). Constraints: vehicle capacity cv = 4, maximum waiting time twait_max = 6 min, max relative in-vehicle detour Δ = 40%. Agents: customers (request tuples (i, ti, xsi, xdi)), operators (fleet controllers), vehicles (move on network, execute schedules), and a broker (in broker scenarios). Modeling: dynamic vehicle routing solved with insertion heuristics for offers and a global re-optimization via feasible vehicle-to-request-bundle (V2RB) enumeration + ILP; repositioning via Pavone-style rebalancing. Operators characterized by objective weights (cdis_α, cvot_α) and fleet size Nv. Interaction scenarios: Single Operator, Independent Operators (split demand), User Decision (broker forwards offers, user picks offer maximizing ϕ_user), Broker Decision (broker chooses offer maximizing ϕ_broker).
 
+### Agent Role
+Company/fleet operators (and a broker in broker scenarios): operators are the central decision-makers controlling offers, fleet schedules and repositioning. Vehicles and customers exist as assets and demand sources, but individual human-driver autonomy is not the focus (operators/broker control fleet behavior).
+
 ## Action
 Customers: send requests to operator or broker and choose/book an offer when available (user utility ϕ_user depends on expected arrival/wait/travel time). Operators: create offers (user parameters ui,o — fare, expected waiting/travel times; system parameters si,o — additional driven distance), run local insertion heuristics to form offers, accept bookings, run global ILP assignment to assign V2RB schedules to vehicles, and periodically reposition idle vehicles. In the game, operators can change fleet size and objective weights (cdis_α, cvot_α) to maximize profit. Broker: forwards requests to operators and either presents offers to users (user decision) or selects offers to optimize a system utility ϕ_broker (minimize additional driven distance). No machine learning models are used; inputs are request tuples, current fleet state, travel times, and offer parameters; optimization uses heuristics and ILP.
 
@@ -148,6 +172,9 @@ This paper develops a macroscopic network-flow model for joint spatiotemporal pr
 ## State
 The environment is a discretized city represented as a graph of K zones with exogenous OD demand and fixed shortest-path trip times τij. System state tracks passenger and vehicle aggregate quantities: waiting passengers Qw, matched passengers Qm, in-vehicle passengers Qb (split into intra/inter-zone), idle vehicles Nv, relocating vehicles Nr, and parked (off-duty) vehicles Np. Continuous-time network-flow dynamics are specified (arrival, confirmation/matching, cancellation, pickup, trip completion, rebalancing) and discretized for computation; some relaxations aggregate inter-zone trips and treat Nv as a decision variable to decouple zones.
 
+### Agent Role
+Company/platform-level agent: the platform is the central decision-maker controlling origin-dependent prices, rebalancing flows and fleet-size adjustments. Drivers are represented in aggregate quantities (participation/supply functions) and not as explicit per-driver agents.
+
 ## Action
 The platform (central agent) controls: origin-dependent price rates pi(t), rebalancing flows rij(t) and fleet size adjustments si(t) in the original model. In the relaxed/decomposed formulation actions are effectively pi(t) and targeted number of idle/on-duty vehicles Nv_i(t). No machine-learning model is used; dynamic programming (value-function computation over a discretized smaller state space) and model predictive control are the computational tools.
 
@@ -164,6 +191,9 @@ This paper builds a spatial ride-sourcing model based on a discrete-time geometr
 
 ## State
 The environment is a city partitioned into homogeneous geographic zones. Time is modeled in discrete analysis periods subdivided by small time steps δ. Agents: customers (demand Qi per zone) and drivers (Ni vacant/occupied vehicles). Key modeling assumptions: matching is geometric and local — each requesting customer is matched to the closest vacant vehicle within radius r in the same zone; unmatched vehicle locations are approximated by a spatial Poisson point process; matching involves two delays (matching time until a match confirmation and en-route pickup time). Two labor-supply regimes are considered: perfectly elastic (long run, wage equals opportunity cost c) and perfectly inelastic (short run, fixed fleet size N). Demand is log-linear in fare and waiting time and is estimated from Didi order data.
+
+### Agent Role
+Both: the platform/operator and drivers. The platform is modeled as a profit-maximizing operator setting zonal prices and commission rates; drivers are represented via long-run/short-run labor-supply regimes—modeled at the individual-choice level but often implemented via aggregate supply functions or fixed N in the short run.
 
 ## Action
 Agents' actions and platform control:
@@ -186,6 +216,9 @@ The paper develops a network economic equilibrium model for ride-sourcing that l
 
 ## State
 The environment is a static, zonal representation of a city (M zones) connected by a road graph; zones are partitioned into a congested urban core C and a remote area R. Agents are passengers, drivers, a profit-maximizing platform, and a regulator that can impose congestion charges. Modeling assumptions include: long-run equilibrium (no fine temporal dynamics), passengers matched to nearest idle vehicle in the same zone, passenger and driver mode/participation choices follow logit-type choice models, passenger waiting time follows a decreasing function (square-root law in numerical study), driver intercept/repositioning probabilities are derived from an M/M/1 matching approximation, and congestion in C is captured via a speed function v_c(N_C) that feeds into trip times t_ij.
+
+### Agent Role
+Company/platform and drivers (equilibrium representation): the platform chooses location-differentiated fares and driver payments; drivers' participation and repositioning are modeled via logit/queueing-derived functions in a long-run equilibrium framework. The model focuses on equilibrium relations rather than individual agent control.
 
 ## Action
 Platform: chooses location-differentiated per-time fares r_i and driver payment (or commission) q to maximize profit subject to equilibrium constraints.

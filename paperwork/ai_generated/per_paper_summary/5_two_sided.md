@@ -5,6 +5,9 @@ This paper develops a two-sided multiagent deep reinforcement learning (DRL) fra
 ## State
 The environment is a discretized urban service region (hexagonal grid) with time split into discrete intervals. Global state S for the supervisor includes AV distribution Va_t, CV distribution Vc_t (split by driver rationality types), aggregated OD trip requests D_t, and current time (one-hot). Drivers have partial observations o_m (grid index, time, and driver-type indicator). The problem is modeled as a two-sided multiagent MDP: a single supervisor agent (centralized) and many noncooperative driver agents (decentralized). Demand arrivals are stochastic and sampled from real NYC taxi data in the simulator.
 
+### Agent Role
+The paper models both. The supervisor agent corresponds to the platform/operator (company-level role) that centrally controls AV relocations and sets spatial–temporal commission fees. Human drivers are modeled as individual, decentralized agents (individual drivers) who learn relocation policies and respond to the platform's fees. 
+
 ## Action
 Supervisor agent actions: per-grid AV relocation decisions X_t (number of idle AVs to move to neighbor grids or stay) and spatial–temporal commission-fee parameters c_it (commission-rate coefficients) — implemented via a two-head policy network that outputs relocation probabilities and commission-rate distributions. Driver agent actions: discrete relocation choices (stay or move to a neighboring grid). ML used: multiagent A2C (policy and value networks); inputs to the supervisor policy network are the global state vector (Va, Vc, D, time), and inputs to driver policy are the local observation o_m. Drivers and supervisor share/train deep neural network actors and critics (drivers use mean-field approximation and share networks across homogeneous drivers).
 

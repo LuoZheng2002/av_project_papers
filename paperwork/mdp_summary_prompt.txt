@@ -2,27 +2,43 @@ Your task is to read and summarize all the papers under the "paperwork/papers" f
 Specifically, for each paper, you need to tell a sub-agent to do the following:
 '''
 Provide the summarization result in a markdown file with the same name as the pdf file under the "paperwork/ai_generated/per_paper_summary" directory.
-The markdown file is composed of 5 sections: "Summary", "State", "Action", "Transition" and "Reward".
-The "Summary" section includes a 2-3 sentences of the contribution of the paper.
-"State" refers to the assumption of the environment, what agents are present, what are considered and how they are modeled.
-"Action" refers to what an agent can do in the environment. If the paper uses machine learning / deep learning, you need to also state what are the inputs to the model and in what form.
-"Transition" refers to how the environment is updated. If a simulation is conducted, describe its scope and abstraction level, and whether the paper proposes its own transition model or it uses an existing algorithm / tool.
-"Reward" generally refers to the objective of the paper. If the paper uses reinforcement learning, state what are considered in the objective function and how they contribute.
-
-If any of the 5 sections is not applicable, for example, there is no agent and thus no actions, state explicitly that it is not applicable in the corresponding section, and elaborate the reason.
 
 The markdown file should be in the following format:
+"""
 # [Full name of the paper]
 ## Summary
-[Summary content]
+[2-3 sentences of the contribution of the paper.]
 ## State
-[State content]
+[1-3 sentences regarding the assumption of the environment, what agents are present, what factors are considered and how they are modeled.]
+### Network Modeling
+[If network is considered, how is it modeled? Is it street-level or zone-based? How is the adjacency and traveling modeled?]
+### Agent Role
+[If there are agents in the paper, state whether the agents correspond to individual drivers or company-level operators, or both.]
+### Demand Model
+[How does the paper model the traveler demand? Does it use real-life data? If using real-life data, elaborate on preprocessing, demand frequency and spatial granularity.]
+### Congestion Model
+[Is congestion modeled in the paper? If so, how is it modeled?]
 ## Action
-[Action content]
+[1-3 sentences regarding what an agent can do in the environment. State the model inputs and their forms if machine learning is used.]
+### Relocation Behavior
+[If relocation can be performed, what are the possible actions?]
+### Other Spatial Behavior
+[If there are spatial behaviors other than relocation, state here with corresponding actions.]
+### Pricing Behavior
+[If there are pricing behaviors, state the possible actions. If pricing is rule-based, state the algorithm.]
+### Traveler Choice
+[If the travelers / riders can make decisions on transportation choice, state the choices and decision factors.]
+### Routing Design
+[If routing is included in the paper, how is it modeled?]
 ## Transition
-[Transition content]
+[1-3 sentences regarding how the environment is updated. If a simulation is conducted, describe its scope and abstraction level.]
+### Simulation algorithm
+[If the transition is modeled by a custom algorithm, describe the algorithm. If the transition is performed by a mature simulator like SUMO, state the simulator name and its granularity.]
 ## Reward
-[Reward content]
+[The objective to optimize. If the paper uses reinforcement learning, state what are considered in the objective function and how they contribute.]
+"""
+
+If any of the sections / subsections is not applicable, state explicitly that it is not applicable in the corresponding section, and provide reasons.
 '''
 
 After the agents finished writing the markdown files, merge the results in one markdown file called "mdp_summary.md" in the root directory, with top level sections to be the full name of the papers. The sub-sections should be the sections in the individual markdown files. Order the papers by their index in the file name.

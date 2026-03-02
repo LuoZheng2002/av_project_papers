@@ -5,6 +5,9 @@ This paper proposes a multi-agent reinforcement learning (MADDPG) approach integ
 ## State
 The environment is a mesoscopic simulation over a real road network (Hangzhou) partitioned into 56 hexagonal regions. The joint state st = [sht, sat], where each platform state sht/sat comprises region-wise vectors: waiting passengers (dw), parked vehicles (vp), occupied vehicle destinations (vo), and sampled real-world demand distribution (dt). The setting is a partially observable MDP: each platform can observe its own state and the competitors’ observable actions (prices/wages) but not the competitor’s internal state.
 
+### Agent Role
+The paper models agents at the platform/operator level (companies). Both the HV and SAV are represented as platform agents: actions are platform-wide price/wage vectors (HV: payout ratio and prices; SAV: region-wise prices), the RL actors control platform decisions, and the critics are centralized during training over full platform states. Individual human drivers are not modeled as independent decision-making agents—driver supply is captured via a functional relation to the payout ratio—and SAV vehicles are governed by the SAV operator rather than treated as separate agents.
+
 ## Action
 The joint action at = [aht, aat]. HV action aht = [wht, pht]: wht is the payout (driver wage) ratio and pht is a continuous price vector (price per km per region). SAV action aat = pat: a continuous region-wise price vector. ML model: MADDPG (multi-agent deep deterministic policy gradient) with actor-critic agents. Actors take the agent’s private state (and observe other platforms’ actions in execution) and output continuous price/wage vectors; critics are centralized during training and take full states and actions as inputs to evaluate Q-values.
 

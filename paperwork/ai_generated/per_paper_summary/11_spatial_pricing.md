@@ -16,6 +16,9 @@ Regulator: sets congestion charge structure (one-directional cordon, bi-directio
 
 Machine learning: Not applicable — the paper does not use ML. Instead it uses economic choice models (logit) and analytical queueing approximations (M/M/1).
 
+### Agent Role
+The paper models both a company (the platform) and individual drivers (in aggregate). The platform is represented as a profit-maximizing firm that chooses location-differentiated fares r_i and driver payments q; drivers are represented via an aggregate participation function N = N0 * F_d(q) and logit-based repositioning probabilities P_ij that capture individual choice behavior but are solved as steady-state/aggregate flows, rather than modeling an explicit fleet operator controlling vehicles.
+
 ## Transition
 The environment is updated to a steady-state (equilibrium) via a system of algebraic constraints rather than a dynamic simulator: vehicle-hour conservation (partition of N into occupied, pickup, idle hours), network flow balance (inflow = outflow in each zone), pickup/matching and intercept probabilities (from M/M/1), and the congestion speed function v_c(N_C) that determines travel times t_ij. The model is a static spatial equilibrium (no continuous-time transition dynamics); the paper proposes this equilibrium/transition model (it does not rely on an external traffic simulator). Numerical experiments solve the equilibrium for given policy parameters (platform choices and congestion charges) over a San Francisco zonal dataset.
 

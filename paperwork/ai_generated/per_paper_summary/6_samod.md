@@ -5,6 +5,9 @@ This paper proposes SAMoD, a fully decentralized multi-agent system where each v
 ## State
 The environment is a free‑floating, one‑way shared mobility area discretized into zones; the authors use NYC taxi trip records for demand and a simplified grid-like travel-time model (no congestion, constant speed ~21 mph). Agents observe only local information: their vehicle state (empty / hasPassengers / full), presence of active requests in their current zone (yes/no) and in neighbouring zones (yes/no). Historical per-zone request counts are gathered online by agents for use in rebalancing decisions. The simulation assumes a fixed fleet (200 vehicles), vehicle capacity 4, and event-driven updates (zone border cross, drop-off, or rebalancing arrival).
 
+### Agent Role
+The paper models each agent as an individual vehicle (an autonomous driver/vehicle). Agents correspond to vehicles in a fixed fleet of 200 and learn policies per vehicle; there is no separate company or fleet-operator decision-maker modeled. Thus: individual vehicle — yes; company/fleet/operator — no; both — no.
+
 ## Action
 Each agent executes discrete actions A = {pickUp, rebalance, doNothing}. pickUp triggers nearest-request pickup (initial or ride‑sharing) and allows listening for further ride‑share requests while not full. rebalance selects a neighbouring zone according to one of learned strategies: (i) neighbour with most current pending requests, (ii) neighbour with largest supply-request gap, (iii) neighbour with historically most requests, or (iv) neighbour with historically largest gap. The learning method is tabular Q‑learning: Q(S,A) is updated per episode; state inputs are the discrete vehicle state and binary indicators of requests in current and neighbouring zones. Episodes are bounded by drop‑offs or end of rebalancing.
 

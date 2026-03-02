@@ -5,6 +5,9 @@ This paper builds a spatial ride-sourcing model based on a discrete-time geometr
 ## State
 The environment is a city partitioned into homogeneous geographic zones. Time is modeled in discrete analysis periods subdivided by small time steps δ. Agents: customers (demand Qi per zone) and drivers (Ni vacant/occupied vehicles). Key modeling assumptions: matching is geometric and local — each requesting customer is matched to the closest vacant vehicle within radius r in the same zone; unmatched vehicle locations are approximated by a spatial Poisson point process; matching involves two delays (matching time until a match confirmation and en-route pickup time). Two labor-supply regimes are considered: perfectly elastic (long run, wage equals opportunity cost c) and perfectly inelastic (short run, fixed fleet size N). Demand is log-linear in fare and waiting time and is estimated from Didi order data.
 
+### Agent Role
+The paper models both individual drivers and a company/platform. Drivers are represented as individual decision-makers under two labor-supply regimes: in the long run they choose zones to equalize expected payoff (individual driver behavior), while in the short run the fleet size is fixed (inelastic supply). The platform (company) is explicitly modeled as a centralized operator that sets zonal price multipliers and commission rates to maximize revenue.
+
 ## Action
 Agents' actions and platform control:
 - Customers: generate requests and accept service implicitly via the demand function (no explicit cancellation modeled once matched).
