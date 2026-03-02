@@ -1,0 +1,28 @@
+Your task is to read and summarize all the papers under the "paperwork/papers" folder.
+Specifically, for each paper, you need to tell a sub-agent to do the following:
+'''
+Provide the summarization result in a markdown file with the same name as the pdf file under the "paperwork/ai_generated/per_paper_summary" directory.
+The markdown file is composed of 5 sections: "Summary", "State", "Action", "Transition" and "Reward".
+The "Summary" section includes a 2-3 sentences of the contribution of the paper.
+"State" refers to the assumption of the environment, what agents are present, what are considered and how they are modeled.
+"Action" refers to what an agent can do in the environment. If the paper uses machine learning / deep learning, you need to also state what are the inputs to the model and in what form.
+"Transition" refers to how the environment is updated. If a simulation is conducted, describe its scope and abstraction level, and whether the paper proposes its own transition model or it uses an existing algorithm / tool.
+"Reward" generally refers to the objective of the paper. If the paper uses reinforcement learning, state what are considered in the objective function and how they contribute.
+
+If any of the 5 sections is not applicable, for example, there is no agent and thus no actions, state explicitly that it is not applicable in the corresponding section, and elaborate the reason.
+
+The markdown file should be in the following format:
+# [Full name of the paper]
+## Summary
+[Summary content]
+## State
+[State content]
+## Action
+[Action content]
+## Transition
+[Transition content]
+## Reward
+[Reward content]
+'''
+
+After the agents finished writing the markdown files, merge the results in one markdown file called "mdp_summary.md" in the root directory, with top level sections to be the full name of the papers. The sub-sections should be the sections in the individual markdown files. Order the papers by their index in the file name.
